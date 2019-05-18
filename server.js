@@ -1,8 +1,14 @@
 const express = require("express");
-const user = require("./routes/api/user");
+const users = require("./routes/api/users");
+const connectDB = require("./config/db");
+
 const app = express();
 
-app.use("/api/users", user);
+connectDB();
+
+app.use(express.json({ extended: false }));
+
+app.use("/api/users", users);
 
 const PORT = process.env.PORT || 3000;
 
