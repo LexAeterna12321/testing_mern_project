@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
-import combinedReducers from "../reducers/combinedReducers";
+import combinedReducers from "../reducers";
 const initialState = {};
 export default createStore(
   combinedReducers,

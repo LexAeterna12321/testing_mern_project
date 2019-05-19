@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Container, ChatWindow } from "../styledComponents/";
+import { Container, ChatWindow, Button, Form } from "../styledComponents/";
 import "./chat.css";
 const Chat = () => {
   return (
@@ -8,14 +8,14 @@ const Chat = () => {
         <div id="output" />
         <div id="feedback" />
       </ChatWindow>
-      <form id="form">
+      <Form>
         <input type="text" id="userName" placeholder="Name" />
         <input type="text" id="message" placeholder="Message" />{" "}
-        <button id="send" type="submit">
+        <Button id="send" type="submit">
           Send
-        </button>
+        </Button>
         <div id="error" />
-      </form>
+      </Form>
     </Container>
   );
 };

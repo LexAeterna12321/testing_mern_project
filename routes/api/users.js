@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const authMiddleware = require("../../middleware/auth");
 
 const User = require("../../models/User");
+
 const router = express.Router();
 
 // @route   POST api/users
