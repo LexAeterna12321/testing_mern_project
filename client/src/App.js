@@ -5,7 +5,7 @@ const App = () => {
   return (
     <Router>
       <Switch>
-        <Route exact to="/chat" component={Chat} />
+        <Route path="/chat" exact component={Chat} />
       </Switch>
     </Router>
   );
