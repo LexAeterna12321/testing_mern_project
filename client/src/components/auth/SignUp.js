@@ -2,25 +2,23 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import {
-  Container,
-  Button,
-  Form,
-  Header,
-  Input,
-  Error
-} from "../styledComponents/";
-
+import { Container, Button, Form, Header, Input } from "../styledComponents/";
+import Alert from "../sharedComponents/Alert";
 import { registerUser } from "../../store/actions/user";
 import { setAlert } from "../../store/actions/alert";
 
-const SignUp = ({ registerUser, setAlert }) => {
+const SignUp = ({ registerUser, setAlert, auth, alert }) => {
+  console.log(auth, alert.alertType);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmedPassword: ""
   });
+
+  const handleInputChange = e => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleFormSubmit = e => {
     e.preventDefault();
@@ -29,11 +27,7 @@ const SignUp = ({ registerUser, setAlert }) => {
       return;
     }
 
-    console.log(formData);
     registerUser({ name, email, password });
-  };
-  const handleInputChange = e => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const { name, email, password, confirmedPassword } = formData;
@@ -64,7 +58,7 @@ const SignUp = ({ registerUser, setAlert }) => {
           type="password"
           name="password"
           required
-          placeholder="Password"
+          placeholder="Password *"
         />
         <Input
           onChange={e => handleInputChange(e)}
@@ -74,13 +68,12 @@ const SignUp = ({ registerUser, setAlert }) => {
           name="confirmedPassword"
           placeholder="Confirm Password"
         />
-        <Button id="send" type="submit">
-          Register
-        </Button>
+        <Button type="submit">Register</Button>
+        <Alert alert={alert} />
         <p>
           You already have an account?<Link to="/">Login Here.</Link>
         </p>
-        <Error />
+        <small>* Your password should have at least 5 characters</small>
       </Form>{" "}
     </Container>
   );
@@ -91,7 +84,14 @@ SignUp.propTypes = {
   setAlert: PropTypes.func.isRequired
 };
 
+const mapStateToProps = state => {
+  console.log(state);
+  return {
+    auth: state.auth,
+    alert: state.alert
+  };
+};
 export default connect(
-  null,
+  mapStateToProps,
   { registerUser, setAlert }
 )(SignUp);

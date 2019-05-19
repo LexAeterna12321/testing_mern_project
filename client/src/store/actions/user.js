@@ -1,5 +1,5 @@
 import axios from "axios";
-import setAuthToken from "../utils/setAuthToken";
+// import setAuthToken from "../utils/setAuthToken";
 import { setAlert } from "./alert";
 import {
   REGISTER_SUCCESS,
@@ -23,6 +23,7 @@ export const registerUser = formData => async dispatch => {
     dispatch({ type: REGISTER_SUCCESS, payload: res.data });
     dispatch(setAlert("Registration success", "success"));
   } catch (error) {
+    console.log({ error });
     const errors = error.response.data.errors;
     errors.forEach(err => {
       dispatch(setAlert(err.msg, "danger"));
@@ -40,15 +41,17 @@ export const loginUser = formData => async dispatch => {
   const body = JSON.stringify({ email, password });
 
   try {
-    const res = await axios.post("/api/users", body, config);
+    const res = await axios.post("/api/auth", body, config);
 
     dispatch({ type: LOGIN_SUCCESS, payload: res.data });
-    dispatch(setAlert("Registration success", "success"));
+    dispatch(setAlert("Logged In", "success"));
   } catch (error) {
     const errors = error.response.data.errors;
+
     errors.forEach(err => {
       dispatch(setAlert(err.msg, "danger"));
     });
+
     dispatch({ type: LOGIN_ERROR });
   }
 };
