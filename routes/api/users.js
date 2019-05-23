@@ -93,18 +93,18 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-// @route   GET api/users/:user_id
+// @route   GET api/users/me
 // @desc    Get user by id
 // @access   Private
-router.get("/:user_id", authMiddleware, async (req, res) => {
+router.get("/me", authMiddleware, async (req, res) => {
+  console.log(req);
   try {
-    console.log(req);
     const id = req.user.id;
     const user = await User.findById(id).select("-password");
 
     if (!user) return res.status(400).json({ msg: "User not found" });
 
-    res.json({ user });
+    res.json(user);
   } catch (error) {
     console.error(error.message);
     if (error.kind === "ObjectId") {

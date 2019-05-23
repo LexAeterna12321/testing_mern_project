@@ -5,9 +5,20 @@ import {
   REGISTER_SUCCESS,
   REGISTER_ERROR,
   LOGIN_SUCCESS,
-  LOGIN_ERROR
+  LOGIN_ERROR,
+  GET_USER,
+  GET_USER_ERROR
 } from "../types";
+import setAuthToken from "../utils/setAuthToken";
 
+export const getCurrentUser = () => async dispatch => {
+  try {
+    const res = await axios.get(`/api/users/me`);
+    dispatch({ type: GET_USER, payload: res.data });
+  } catch (error) {
+    dispatch({ type: GET_USER_ERROR });
+  }
+};
 export const registerUser = formData => async dispatch => {
   const { name, email, password } = formData;
 
@@ -23,7 +34,6 @@ export const registerUser = formData => async dispatch => {
     dispatch({ type: REGISTER_SUCCESS, payload: res.data });
     dispatch(setAlert("Registration success", "success"));
   } catch (error) {
-    console.log({ error });
     const errors = error.response.data.errors;
     errors.forEach(err => {
       dispatch(setAlert(err.msg, "danger"));
@@ -33,6 +43,10 @@ export const registerUser = formData => async dispatch => {
 };
 export const loginUser = formData => async dispatch => {
   const { email, password } = formData;
+
+  if (localStorage.token) {
+    setAuthToken(localStorage.token);
+  }
 
   const config = {
     headers: { "Content-Type": "application/json" }

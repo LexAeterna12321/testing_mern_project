@@ -1,17 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { Container, Button, Form, Header, Input } from "../styledComponents/";
+import { Redirect } from "react-router-dom";
+import {
+  Container,
+  Button,
+  Form,
+  Header,
+  Input,
+  StyledLink
+} from "../styledComponents/";
 import Alert from "../sharedComponents/Alert";
 import { loginUser } from "../../store/actions/user";
 import { setAlert } from "../../store/actions/alert";
 
-const SignIn = ({ loginUser, setAlert, auth, alert }) => {
+const SignIn = ({ loginUser, setAlert, isAuthenticated, alert }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   });
+  if (isAuthenticated) {
+    return <Redirect to="/chat" />;
+  }
 
   const handleFormSubmit = e => {
     e.preventDefault();
@@ -46,7 +56,8 @@ const SignIn = ({ loginUser, setAlert, auth, alert }) => {
         <Button type="submit">Login</Button>
         <Alert alert={alert} />
         <p>
-          You don't have an account?<Link to="/signup">Regsiter Here.</Link>
+          You don't have an account?
+          <StyledLink to="/signup"> Regsiter Here.</StyledLink>
         </p>
       </Form>{" "}
     </Container>
@@ -56,12 +67,12 @@ const SignIn = ({ loginUser, setAlert, auth, alert }) => {
 SignIn.propTypes = {
   loginUser: PropTypes.func.isRequired,
   setAlert: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired,
+  isAuthenticated: PropTypes.bool.isRequired,
   alert: PropTypes.array
 };
 
 const mapStateToProps = state => {
-  return { auth: state.auth, alert: state.alert };
+  return { isAuthenticated: state.auth.isAuthenticated, alert: state.alert };
 };
 
 export default connect(

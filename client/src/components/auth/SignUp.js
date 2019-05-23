@@ -1,14 +1,20 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { Container, Button, Form, Header, Input } from "../styledComponents/";
+import {
+  Container,
+  Button,
+  Form,
+  Header,
+  Input,
+  StyledLink
+} from "../styledComponents/";
+import { Redirect } from "react-router-dom";
 import Alert from "../sharedComponents/Alert";
 import { registerUser } from "../../store/actions/user";
 import { setAlert } from "../../store/actions/alert";
 
-const SignUp = ({ registerUser, setAlert, auth, alert }) => {
-  console.log(auth, alert.alertType);
+const SignUp = ({ registerUser, setAlert, isAuthenticated, alert }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -29,6 +35,10 @@ const SignUp = ({ registerUser, setAlert, auth, alert }) => {
 
     registerUser({ name, email, password });
   };
+
+  if (isAuthenticated) {
+    return <Redirect to="/chat" />;
+  }
 
   const { name, email, password, confirmedPassword } = formData;
 
@@ -71,7 +81,8 @@ const SignUp = ({ registerUser, setAlert, auth, alert }) => {
         <Button type="submit">Register</Button>
         <Alert alert={alert} />
         <p>
-          You already have an account?<Link to="/">Login Here.</Link>
+          You already have an account?
+          <StyledLink to="/"> Login Here.</StyledLink>
         </p>
         <small>* Your password should have at least 5 characters</small>
       </Form>{" "}
@@ -81,13 +92,14 @@ const SignUp = ({ registerUser, setAlert, auth, alert }) => {
 
 SignUp.propTypes = {
   registerUser: PropTypes.func.isRequired,
-  setAlert: PropTypes.func.isRequired
+  setAlert: PropTypes.func.isRequired,
+  isAuthenticated: PropTypes.bool,
+  alert: PropTypes.array
 };
 
 const mapStateToProps = state => {
-  console.log(state);
   return {
-    auth: state.auth,
+    isAuthenticated: state.auth.isAuthenticated,
     alert: state.alert
   };
 };
