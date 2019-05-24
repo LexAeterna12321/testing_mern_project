@@ -1,8 +1,9 @@
 import styled from "styled-components";
+import { bgColor, borderRadius } from "./globalVars";
 
 export const Container = styled.div`
+  position: relative;
   width: 100%;
-  min-height: 100vh;
   overflow: hidden;
   padding: 0;
   display: flex;
@@ -10,6 +11,8 @@ export const Container = styled.div`
   align-items: center;
   justify-content: center;
   border: 1px solid #ddd;
-  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.05);
-  border-radius: 2px;
+  box-shadow: 1px 3px 5px 3px rgba(0, 0, 0, 0.12);
+  border-radius: ${borderRadius};
+  background: ${bgColor};
+  z-index: 1;
 `;

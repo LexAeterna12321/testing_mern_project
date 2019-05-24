@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { mainColor, dangerColor } from "./globalVars";
+import { mainColor, dangerColor, borderRadius } from "./globalVars";
 export const Button = styled.button`
   padding: 12px 0;
   margin: 20px 0;
@@ -8,7 +8,7 @@ export const Button = styled.button`
   color: #fff;
   font-size: 18px;
   border: 0;
-  border-radius: 10px;
+  border-radius: ${borderRadius};
   cursor: pointer;
   font-family: "Baloo Bhai", cursive;
   letter-spacing: 3px;

@@ -1,3 +1,4 @@
+export * from "./globalVars";
 export * from "./Container";
 export * from "./ChatWindow";
 export * from "./Form";

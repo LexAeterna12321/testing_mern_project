@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Baloo+Bhai&display=swap&subset=latin-ext');
 
 body {
+  position: relative;
   margin: 0;
   padding: 0;
   font-family: 'Baloo Bhai', cursive;
@@ -9,6 +10,39 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  width: 300%;
+  height: 400%;
+  background-image: url('../img/welcome_screen_pattern.png');
+  animation: bgAnim 360s infinite forwards;
+  background-repeat: repeat;
+}
+
+@keyframes bgAnim {
+  0% {
+    transform: translate(0, 0)
+  }
+
+  25% {
+    transform: translate(10%, 20%)
+  }
+
+  50% {
+    transform: translate(20%, 10%)
+  }
+
+  75% {
+    transform: translate(-10%, -20%)
+  }
+
+  100% {
+    transform: translate(0, 0)
+  }
 }
 
 code {
