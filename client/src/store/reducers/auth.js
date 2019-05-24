@@ -2,7 +2,8 @@ import {
   REGISTER_SUCCESS,
   REGISTER_ERROR,
   LOGIN_SUCCESS,
-  LOGIN_ERROR
+  LOGIN_ERROR,
+  LOGOUT
 } from "../types";
 
 const initialState = {
@@ -20,6 +21,8 @@ export const auth = (state = initialState, action) => {
       return { ...state, ...payload, isAuthenticated: true };
     case LOGIN_ERROR:
     case REGISTER_ERROR:
+    case LOGOUT:
+      localStorage.removeItem("token");
       return { ...state, isAuthenticated: false, token: null };
     default:
       return state;

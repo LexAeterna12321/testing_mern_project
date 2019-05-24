@@ -7,11 +7,14 @@ import {
   LOGIN_SUCCESS,
   LOGIN_ERROR,
   GET_USER,
-  GET_USER_ERROR
+  GET_USER_ERROR,
+  LOGOUT
 } from "../types";
 import setAuthToken from "../utils/setAuthToken";
 
 export const getCurrentUser = () => async dispatch => {
+  setAuthToken(localStorage.token);
+
   try {
     const res = await axios.get(`/api/users/me`);
     dispatch({ type: GET_USER, payload: res.data });
@@ -68,4 +71,8 @@ export const loginUser = formData => async dispatch => {
 
     dispatch({ type: LOGIN_ERROR });
   }
+};
+
+export const logoutUser = () => dispatch => {
+  dispatch({ type: LOGOUT });
 };

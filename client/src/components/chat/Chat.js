@@ -12,10 +12,10 @@ import {
   Input
 } from "../styledComponents/";
 import Alert from "../sharedComponents/Alert";
-import { getCurrentUser } from "../../store/actions/user";
+import { getCurrentUser, logoutUser } from "../../store/actions/user";
 import "./chat.css";
 
-const Chat = ({ isAuthenticated, alert, user, getCurrentUser }) => {
+const Chat = ({ isAuthenticated, alert, user, getCurrentUser, logoutUser }) => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const Chat = ({ isAuthenticated, alert, user, getCurrentUser }) => {
 
   return (
     <Container>
-      <Header>Hi {user.name}</Header>
+      <Header>Hi {user && user.name}</Header>
       <ChatWindow>
         <div id="output" />
         <div id="feedback" />
@@ -52,8 +52,8 @@ const Chat = ({ isAuthenticated, alert, user, getCurrentUser }) => {
         <Button id="send" type="submit">
           Send
         </Button>{" "}
-        <GrayedButton type="button">
-          <a href="/">Go Back to Login</a>
+        <GrayedButton type="button" onClick={logoutUser}>
+          <Link to="/">Logout</Link>
         </GrayedButton>
       </Form>
       <Alert alert={alert} />
@@ -72,9 +72,10 @@ Chat.propTypes = {
   alert: PropTypes.array,
   isAuthenticated: PropTypes.bool.isRequired,
   user: PropTypes.object.isRequired,
-  getCurrentUser: PropTypes.func.isRequired
+  getCurrentUser: PropTypes.func.isRequired,
+  logoutUser: PropTypes.func.isRequired
 };
 export default connect(
   mapStateToProps,
-  { getCurrentUser }
+  { getCurrentUser, logoutUser }
 )(Chat);

@@ -19,5 +19,5 @@ export const Button = styled.button`
 `;
 
 export const GrayedButton = styled(Button)`
-  background: #8f8f8f;
+  background: #afafaf;
 `;

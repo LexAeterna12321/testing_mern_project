@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
@@ -14,7 +14,7 @@ import Alert from "../sharedComponents/Alert";
 import { loginUser } from "../../store/actions/user";
 import { setAlert } from "../../store/actions/alert";
 
-const SignIn = ({ loginUser, setAlert, isAuthenticated, alert }) => {
+const SignIn = ({ loginUser, isAuthenticated, alert }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: ""
