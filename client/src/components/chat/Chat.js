@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
+import { socket } from "./utils/socket";
 import {
   Header,
   Container,
@@ -13,10 +14,12 @@ import {
 } from "../styledComponents/";
 import Alert from "../sharedComponents/Alert";
 import { getCurrentUser, logoutUser } from "../../store/actions/user";
-import "./chat.css";
+import uuid from "uuid";
 
 const Chat = ({ isAuthenticated, alert, user, getCurrentUser, logoutUser }) => {
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [types, setTypes] = useState("");
 
   useEffect(() => {
     getCurrentUser();
@@ -28,18 +31,37 @@ const Chat = ({ isAuthenticated, alert, user, getCurrentUser, logoutUser }) => {
 
   const handleInputChange = e => {
     setMessage(e.target.value);
+    socket.emit("typing", { user: user.name, message: message });
+    socket.on("typing", data => {
+      if (message !== "") {
+        setTypes(data);
+      } else {
+        setTypes(``);
+      }
+    });
   };
 
   const handleFormSubmit = e => {
     e.preventDefault();
+    socket.emit("chat", { userName: user.name, message: message });
+    setMessage("");
+    setTypes("");
+    socket.emit("typing", { user: user.name, message: message });
+    socket.on("chat", function(data) {
+      const msg = `${data.userName} : ${data.message}`;
+
+      setMessages([...messages, msg]);
+    });
   };
 
   return (
     <Container>
       <Header>Hi {user && user.name}</Header>
       <ChatWindow>
-        <div id="output" />
-        <div id="feedback" />
+        {types}
+        {messages.map(msg => {
+          return <p key={uuid.v4()}>{msg}</p>;
+        })}
       </ChatWindow>
       <Form onSubmit={e => handleFormSubmit(e)}>
         <Input
@@ -49,9 +71,7 @@ const Chat = ({ isAuthenticated, alert, user, getCurrentUser, logoutUser }) => {
           placeholder="Message"
           value={message}
         />{" "}
-        <Button id="send" type="submit">
-          Send
-        </Button>{" "}
+        <Button type="submit">Send</Button>{" "}
         <GrayedButton type="button" onClick={logoutUser}>
           <Link to="/">Logout</Link>
         </GrayedButton>

@@ -65,9 +65,10 @@ export const loginUser = formData => async dispatch => {
   } catch (error) {
     const errors = error.response.data.errors;
 
-    errors.forEach(err => {
-      dispatch(setAlert(err.msg, "danger"));
-    });
+    errors &&
+      errors.forEach(err => {
+        dispatch(setAlert(err.msg, "danger"));
+      });
 
     dispatch({ type: LOGIN_ERROR });
   }

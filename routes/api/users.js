@@ -97,7 +97,6 @@ router.get("/", authMiddleware, async (req, res) => {
 // @desc    Get user by id
 // @access   Private
 router.get("/me", authMiddleware, async (req, res) => {
-  console.log(req);
   try {
     const id = req.user.id;
     const user = await User.findById(id).select("-password");
