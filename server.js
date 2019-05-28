@@ -2,6 +2,7 @@ const express = require("express");
 const connectDB = require("./config/db");
 const users = require("./routes/api/users");
 const auth = require("./routes/api/auth");
+const messages = require("./routes/api/messages");
 const socket = require("socket.io");
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.json({ extended: false }));
 
 app.use("/api/users", users);
 app.use("/api/auth", auth);
+app.use("/api/chat", messages);
 
 const PORT = process.env.PORT || 5000;
 
