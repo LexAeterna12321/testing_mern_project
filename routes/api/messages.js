@@ -7,6 +7,9 @@ const Message = require("../../models/Message");
 
 const router = express.Router();
 
+// @route   POST api/chat
+// @desc    Create message
+// @access   Private
 router.post(
   "/",
   authMiddleware,
@@ -25,7 +28,6 @@ router.post(
     }
 
     try {
-      console.log(id);
       let fetchedUser = await User.findById(id);
 
       const message = new Message({
@@ -41,5 +43,18 @@ router.post(
     }
   }
 );
+
+// @route   GET api/chat
+// @desc    Get messages
+// @access   Private
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const messages = await Message.find().sort({ date: 1 });
+    res.json(messages.slice(0, 10));
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
 
 module.exports = router;

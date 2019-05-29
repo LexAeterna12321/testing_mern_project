@@ -14,16 +14,28 @@ import {
 } from "../styledComponents/";
 import Alert from "../sharedComponents/Alert";
 import { getCurrentUser, logoutUser } from "../../store/actions/user";
+import { sendMessage, getMessages } from "../../store/actions/message";
 import uuid from "uuid";
 
-const Chat = ({ isAuthenticated, alert, user, getCurrentUser, logoutUser }) => {
+const Chat = ({
+  isAuthenticated,
+  alert,
+  user,
+  messages,
+  getCurrentUser,
+  logoutUser,
+  sendMessage,
+  getMessages
+}) => {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
+
   const [types, setTypes] = useState("");
 
   useEffect(() => {
     getCurrentUser();
-  }, [getCurrentUser]);
+    getMessages();
+    socket.on("chat", () => getMessages());
+  }, [getCurrentUser, getMessages]);
 
   if (!isAuthenticated) {
     return <Redirect to="/" />;
@@ -31,27 +43,29 @@ const Chat = ({ isAuthenticated, alert, user, getCurrentUser, logoutUser }) => {
 
   const handleInputChange = e => {
     setMessage(e.target.value);
-    socket.emit("typing", { user: user.name, message: message });
-    socket.on("typing", data => {
-      if (message !== "") {
-        setTypes(data);
-      } else {
-        setTypes(``);
-      }
-    });
+    // socket.emit("typing", { user: user.name, message: message });
+    // socket.on("typing", data => {
+    //   if (message !== "") {
+    //     setTypes(data);
+    //   } else {
+    //     setTypes(``);
+    //   }
+    // });
   };
 
   const handleFormSubmit = e => {
     e.preventDefault();
     socket.emit("chat", { userName: user.name, message: message });
+
+    sendMessage(message);
     setMessage("");
     setTypes("");
-    socket.emit("typing", { user: user.name, message: message });
-    socket.on("chat", function(data) {
-      const msg = `${data.userName} : ${data.message}`;
 
-      setMessages([...messages, msg]);
-    });
+    // socket.emit("typing", { user: user.name, message: message });
+    // socket.on("chat", function(data) {
+    //   const msg = `${data.userName} : ${data.message}`;
+
+    // });
   };
 
   return (
@@ -59,9 +73,10 @@ const Chat = ({ isAuthenticated, alert, user, getCurrentUser, logoutUser }) => {
       <Header>Hi {user && user.name}</Header>
       <ChatWindow>
         {types}
-        {messages.map(msg => {
-          return <p key={uuid.v4()}>{msg}</p>;
-        })}
+        {messages &&
+          messages.map(msg => {
+            return <p key={msg.id}>{`${msg.name}: ${msg.msg}`}</p>;
+          })}
       </ChatWindow>
       <Form onSubmit={e => handleFormSubmit(e)}>
         <Input
@@ -85,7 +100,8 @@ const mapStateToProps = state => {
   return {
     alert: state.alert,
     isAuthenticated: state.auth.isAuthenticated,
-    user: state.user
+    user: state.user,
+    messages: state.message.messages
   };
 };
 Chat.propTypes = {
@@ -93,9 +109,11 @@ Chat.propTypes = {
   isAuthenticated: PropTypes.bool.isRequired,
   user: PropTypes.object.isRequired,
   getCurrentUser: PropTypes.func.isRequired,
-  logoutUser: PropTypes.func.isRequired
+  logoutUser: PropTypes.func.isRequired,
+  sendMessage: PropTypes.func.isRequired,
+  getMessages: PropTypes.func.isRequired
 };
 export default connect(
   mapStateToProps,
-  { getCurrentUser, logoutUser }
+  { getCurrentUser, logoutUser, sendMessage, getMessages }
 )(Chat);
