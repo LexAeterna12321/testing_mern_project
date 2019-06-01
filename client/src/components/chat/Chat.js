@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
-import { socket } from "./utils/socket";
 import {
   Header,
   Container,
@@ -15,27 +14,41 @@ import {
 import Alert from "../sharedComponents/Alert";
 import { getCurrentUser, logoutUser } from "../../store/actions/user";
 import { sendMessage, getMessages } from "../../store/actions/message";
-import uuid from "uuid";
+import { socket } from "./utils/socket";
 
+socket.on("connect", () => {
+  console.log("connected with socket.io");
+});
 const Chat = ({
   isAuthenticated,
   alert,
   user,
-  messages,
+
   getCurrentUser,
   logoutUser,
   sendMessage,
   getMessages
 }) => {
   const [message, setMessage] = useState("");
-
-  const [types, setTypes] = useState("");
+  const [isTyping, toggleTyping] = useState(false);
+  const chatRef = useRef({});
+  const typingRef = useRef({});
 
   useEffect(() => {
     getCurrentUser();
-    getMessages();
-    socket.on("chat", () => getMessages());
-  }, [getCurrentUser, getMessages]);
+    socket.on("chat", function(data) {
+      chatRef.current.innerHTML += `<p>${data.userName}: ${data.message} </p>`;
+    });
+    socket.on("typing", function(data) {
+      if (data.typing) {
+        toggleTyping(true);
+        typingRef.current.innerHTML = `<p>${data.userName} is typing...</p>`;
+      } else {
+        typingRef.current.innerHTML = "";
+        toggleTyping(false);
+      }
+    });
+  }, [getCurrentUser]);
 
   if (!isAuthenticated) {
     return <Redirect to="/" />;
@@ -43,41 +56,60 @@ const Chat = ({
 
   const handleInputChange = e => {
     setMessage(e.target.value);
-    // socket.emit("typing", { user: user.name, message: message });
-    // socket.on("typing", data => {
-    //   if (message !== "") {
-    //     setTypes(data);
-    //   } else {
-    //     setTypes(``);
-    //   }
-    // });
+
+    if (e.target.value.trim() !== "") {
+      socket.emit(
+        "typing",
+        JSON.stringify({ userName: user.name, typing: true })
+      );
+    } else {
+      socket.emit(
+        "typing",
+        JSON.stringify({ userName: user.name, typing: false })
+      );
+    }
   };
 
   const handleFormSubmit = e => {
     e.preventDefault();
-    socket.emit("chat", { userName: user.name, message: message });
 
-    sendMessage(message);
+    socket.emit(
+      "chat",
+      JSON.stringify({ userName: user.name, message: message })
+    );
+    socket.emit(
+      "typing",
+      JSON.stringify({ userName: user.name, typing: false })
+    );
+    // sendMessage(message);
     setMessage("");
-    setTypes("");
-
-    // socket.emit("typing", { user: user.name, message: message });
-    // socket.on("chat", function(data) {
-    //   const msg = `${data.userName} : ${data.message}`;
-
-    // });
   };
-
+  console.log(chatRef, typingRef);
   return (
     <Container>
       <Header>Hi {user && user.name}</Header>
-      <ChatWindow>
-        {types}
-        {messages &&
-          messages.map(msg => {
-            return <p key={msg.id}>{`${msg.name}: ${msg.msg}`}</p>;
-          })}
-      </ChatWindow>
+      <ChatWindow ref={chatRef} />{" "}
+      {isTyping ? (
+        <div
+          ref={typingRef}
+          style={{
+            background: "red",
+            color: "white",
+            width: "100%",
+            height: "50px"
+          }}
+        />
+      ) : (
+        <div
+          ref={typingRef}
+          style={{
+            background: "red",
+            color: "white",
+            width: "100%",
+            height: "0"
+          }}
+        />
+      )}
       <Form onSubmit={e => handleFormSubmit(e)}>
         <Input
           onChange={e => handleInputChange(e)}

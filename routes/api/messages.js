@@ -4,7 +4,6 @@ const auth = require("../../middleware/auth");
 const authMiddleware = require("../../middleware/auth");
 const User = require("../../models/User");
 const Message = require("../../models/Message");
-
 const router = express.Router();
 
 // @route   POST api/chat
@@ -50,7 +49,8 @@ router.post(
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const messages = await Message.find().sort({ date: 1 });
-    res.json(messages.slice(0, 10));
+    console.log(messages);
+    res.json(messages);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");

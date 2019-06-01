@@ -14,7 +14,7 @@ export const message = (state = initialState, action) => {
 
   switch (type) {
     case GET_MESSAGES:
-      return { ...state, messages: payload };
+      return { ...state, messages: [...payload] };
     case GET_MESSAGES_ERROR:
       return state;
     case SEND_MESSAGE:

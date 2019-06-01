@@ -12,6 +12,7 @@ export const Button = styled.button`
   cursor: pointer;
   font-family: "Baloo Bhai", cursive;
   letter-spacing: 3px;
+  text-transform: uppercase;
   & a {
     text-decoration: none;
     color: #fff;
