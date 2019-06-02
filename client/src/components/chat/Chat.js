@@ -9,21 +9,18 @@ import {
   Button,
   GrayedButton,
   Form,
-  Input
+  Input,
+  TypingContainer
 } from "../styledComponents/";
 import Alert from "../sharedComponents/Alert";
 import { getCurrentUser, logoutUser } from "../../store/actions/user";
 import { sendMessage, getMessages } from "../../store/actions/message";
-import { socket } from "./utils/socket";
+import { initSocket, handleOnSockets, handleEmitSockets } from "./utils/socket";
 
-socket.on("connect", () => {
-  console.log("connected with socket.io");
-});
 const Chat = ({
   isAuthenticated,
   alert,
   user,
-
   getCurrentUser,
   logoutUser,
   sendMessage,
@@ -34,20 +31,11 @@ const Chat = ({
   const chatRef = useRef({});
   const typingRef = useRef({});
 
+  initSocket();
   useEffect(() => {
     getCurrentUser();
-    socket.on("chat", function(data) {
-      chatRef.current.innerHTML += `<p>${data.userName}: ${data.message} </p>`;
-    });
-    socket.on("typing", function(data) {
-      if (data.typing) {
-        toggleTyping(true);
-        typingRef.current.innerHTML = `<p>${data.userName} is typing...</p>`;
-      } else {
-        typingRef.current.innerHTML = "";
-        toggleTyping(false);
-      }
-    });
+    handleOnSockets("chat", chatRef, toggleTyping);
+    handleOnSockets("typing", typingRef, toggleTyping);
   }, [getCurrentUser]);
 
   if (!isAuthenticated) {
@@ -58,58 +46,27 @@ const Chat = ({
     setMessage(e.target.value);
 
     if (e.target.value.trim() !== "") {
-      socket.emit(
-        "typing",
-        JSON.stringify({ userName: user.name, typing: true })
-      );
+      handleEmitSockets("typing", { userName: user.name, typing: true });
     } else {
-      socket.emit(
-        "typing",
-        JSON.stringify({ userName: user.name, typing: false })
-      );
+      handleEmitSockets("typing", { userName: user.name, typing: false });
     }
   };
 
   const handleFormSubmit = e => {
     e.preventDefault();
+    if (message.trim() === "") return;
+    handleEmitSockets("chat", { userName: user.name, message: message });
+    handleEmitSockets("typing", { userName: user.name, typing: false });
 
-    socket.emit(
-      "chat",
-      JSON.stringify({ userName: user.name, message: message })
-    );
-    socket.emit(
-      "typing",
-      JSON.stringify({ userName: user.name, typing: false })
-    );
     // sendMessage(message);
     setMessage("");
   };
-  console.log(chatRef, typingRef);
+
   return (
     <Container>
       <Header>Hi {user && user.name}</Header>
       <ChatWindow ref={chatRef} />{" "}
-      {isTyping ? (
-        <div
-          ref={typingRef}
-          style={{
-            background: "red",
-            color: "white",
-            width: "100%",
-            height: "50px"
-          }}
-        />
-      ) : (
-        <div
-          ref={typingRef}
-          style={{
-            background: "red",
-            color: "white",
-            width: "100%",
-            height: "0"
-          }}
-        />
-      )}
+      <TypingContainer ref={typingRef} isTyping={isTyping} />
       <Form onSubmit={e => handleFormSubmit(e)}>
         <Input
           onChange={e => handleInputChange(e)}

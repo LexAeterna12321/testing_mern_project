@@ -21,17 +21,30 @@ const server = app.listen(PORT, () =>
 );
 const io = socket(server);
 
+let typingUsers = [];
 io.on("connection", socket => {
   console.log(socket.id);
+
   socket.on("chat", function(data) {
     io.sockets.emit("chat", JSON.parse(data));
   });
-  socket.on("typing", function(data) {
-    const rawData = JSON.parse(data);
-    const userName = rawData.userName;
-    console.log(`${userName} is typing...`);
 
-    socket.broadcast.emit("typing", JSON.parse(data));
+  socket.on("typing", function(data) {
+    const parsedData = JSON.parse(data);
+    if (parsedData.typing) {
+      const filtered = typingUsers.filter(user => {
+        return user.userName === parsedData.userName;
+      });
+      filtered.length > 0 ? null : typingUsers.push(parsedData);
+    } else {
+      typingUsers = typingUsers.filter(
+        user => user.userName !== parsedData.userName
+      );
+    }
+
+    const userName = parsedData.userName;
+    console.log(`${userName} is typing...`);
+    socket.broadcast.emit("typing", typingUsers);
   });
   socket.on("userConnect", function(data) {
     socket.broadcast.emit("userConnect", data);
