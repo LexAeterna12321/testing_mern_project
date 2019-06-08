@@ -1,0 +1,4 @@
+{
+  "mongoURI": "mongodb+srv://Lex:lex123@cluster0-c1egf.mongodb.net/test?retryWrites=true",
+  "jwtSecretPassword": "secretpassword123"
+}

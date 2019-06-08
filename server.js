@@ -4,8 +4,9 @@ const users = require("./routes/api/users");
 const auth = require("./routes/api/auth");
 const messages = require("./routes/api/messages");
 const socket = require("socket.io");
-const app = express();
+const path = require("path");
 
+const app = express();
 connectDB();
 
 app.use(express.json({ extended: false }));
@@ -13,6 +14,14 @@ app.use(express.json({ extended: false }));
 app.use("/api/users", users);
 app.use("/api/auth", auth);
 app.use("/api/chat", messages);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 
@@ -22,9 +31,8 @@ const server = app.listen(PORT, () =>
 const io = socket(server);
 
 let typingUsers = [];
-io.on("connection", socket => {
-  console.log(socket.id);
 
+io.on("connection", socket => {
   socket.on("chat", function(data) {
     io.sockets.emit("chat", JSON.parse(data));
   });
@@ -41,16 +49,21 @@ io.on("connection", socket => {
         user => user.userName !== parsedData.userName
       );
     }
-
-    const userName = parsedData.userName;
-    console.log(`${userName} is typing...`);
     socket.broadcast.emit("typing", typingUsers);
   });
-  socket.on("userConnect", function(data) {
-    socket.broadcast.emit("userConnect", data);
-  });
+  // socket.on("userConnect", function(data) {
+  //   const parsedData = JSON.parse(data);
 
-  socket.on("userDisconnect", function(data) {
-    socket.broadcast.emit("userDisconnect", data);
-  });
+  //   const userName = parsedData.userName;
+  //   console.log({ data, parsedData });
+  //   socket.broadcast.emit("userConnect", parsedData);
+  // });
+
+  // socket.on("disconnect", function(data) {
+  //   const parsedData = JSON.parse(data);
+  //   const userName = parsedData.userName;
+  //   console.log({ data, parsedData });
+  //   console.log(`${userName} disconnected...`);
+  //   socket.broadcast.emit("userDisconnect", userName);
+  // });
 });

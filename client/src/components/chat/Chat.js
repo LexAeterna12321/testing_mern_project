@@ -27,16 +27,25 @@ const Chat = ({
   getMessages
 }) => {
   const [message, setMessage] = useState("");
+
   const [isTyping, toggleTyping] = useState(false);
   const chatRef = useRef({});
   const typingRef = useRef({});
 
-  initSocket();
   useEffect(() => {
+    initSocket();
     getCurrentUser();
-    handleOnSockets("chat", chatRef, toggleTyping);
-    handleOnSockets("typing", typingRef, toggleTyping);
   }, [getCurrentUser]);
+
+  useEffect(() => {
+    handleOnSockets("typing", typingRef, user.name, toggleTyping);
+  }, []);
+
+  useEffect(() => {
+    handleOnSockets("chat", chatRef, user.name, toggleTyping);
+    return () =>
+      handleEmitSockets("typing", { userName: user.name, typing: false });
+  }, [user.name]);
 
   if (!isAuthenticated) {
     return <Redirect to="/" />;
@@ -55,6 +64,7 @@ const Chat = ({
   const handleFormSubmit = e => {
     e.preventDefault();
     if (message.trim() === "") return;
+
     handleEmitSockets("chat", { userName: user.name, message: message });
     handleEmitSockets("typing", { userName: user.name, typing: false });
 
